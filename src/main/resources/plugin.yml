@@ -1,6 +1,6 @@
-name: HlcyFrame-Public
+name: HlcyFrame
 version: '1.0-SNAPSHOT'
-main: de.panda.hlcyFramePublic.HlcyFramePublic
+main: de.panda.hlcyFrame.HlcyFrame
 api-version: '1.21'
 prefix: HlcyFrame
 load: STARTUP

@@ -97,6 +97,7 @@ $RECYCLE.BIN/
 
 target/
 
+pom.xml
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
