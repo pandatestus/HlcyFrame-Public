@@ -1,0 +1,8 @@
+name: HlcyFrame-Public
+version: '1.0-SNAPSHOT'
+main: de.panda.hlcyFramePublic.HlcyFramePublic
+api-version: '1.21'
+prefix: HlcyFrame
+load: STARTUP
+authors: [ panda ]
+website: hlcymc.de
