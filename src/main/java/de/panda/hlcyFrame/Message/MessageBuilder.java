@@ -5,6 +5,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
@@ -252,6 +253,33 @@ public class MessageBuilder {
             }
 
             player.sendActionBar(base);
+        }
+        return this;
+    }
+
+    public MessageBuilder send(CommandSender sender) {
+        for (var entry : lines.entrySet()) {
+
+            Component base = Component.empty();
+
+            for (ChatPart part : entry.getValue()) {
+                Component text = part.getText();
+
+                if (part.isCmd())
+                    text = text.clickEvent(ClickEvent.runCommand(part.getCmdString()));
+
+                if (part.isHover())
+                    text = text.hoverEvent(HoverEvent.showText(
+                            LegacyComponentSerializer.legacySection().deserialize(part.getHoverString())
+                    ));
+
+                if (part.isSetInChat())
+                    text = text.clickEvent(ClickEvent.suggestCommand(part.getSetInChatString()));
+
+                base = base.append(text);
+            }
+
+            sender.sendMessage(base);
         }
         return this;
     }

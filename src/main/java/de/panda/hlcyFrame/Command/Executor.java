@@ -2,6 +2,7 @@ package de.panda.hlcyFrame.Command;
 
 import de.panda.hlcyFrame.Command.Parser.*;
 import de.panda.hlcyFrame.HlcyFrame;
+import de.panda.hlcyFrame.Message.CoreMessage;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -50,6 +51,14 @@ public class Executor {
         }
 
         return ints.toArray(Integer[]::new);
+    }
+
+    public boolean checkForArgs() {
+        if(args.length == 0) {
+            sender.sendMessage(CoreMessage.getMessage("WRONG_COMMAND_USAGE", HlcyFrame.isOtherFont()));
+            return false;
+        }
+        return true;
     }
 
     public Double[] doubles() {

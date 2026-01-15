@@ -14,10 +14,11 @@ public class TestCMD {
     public void init() {
         HlcyCommand test = new HlcyCommand("heal")
                 .addAlias("hallo")
-                .description("inhalt gegeben")
-                .usage("joar keine ahnung")
+                .description("§7heals a player by a specific amount")
+                .usage("/heal <[player]> <[amount]>")
                 .allowedSender(HlcyCommand.Allowed_Sender.PLAYER)
                 .onExecute(e -> {
+                    if(!e.checkForArgs()) return;
                     e.player().sendMessage(e.getText(2));
                     Player player = e.onlinePlayers()[0];
                     if (player == null) {

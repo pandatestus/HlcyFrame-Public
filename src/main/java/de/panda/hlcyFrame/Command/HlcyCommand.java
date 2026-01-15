@@ -4,6 +4,8 @@ import de.panda.hlcyFrame.Command.Parser.ArgumentParser;
 import de.panda.hlcyFrame.Command.Parser.ParsedValueList;
 import de.panda.hlcyFrame.HlcyFrame;
 import de.panda.hlcyFrame.Message.CoreMessage;
+import de.panda.hlcyFrame.Message.MessageBuilder;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -53,6 +55,8 @@ public class HlcyCommand extends Command {
             e.printStackTrace();
         }
 
+
+        HlcyFrame.addCommand(this);
         return this;
     }
 
@@ -146,7 +150,7 @@ public class HlcyCommand extends Command {
                 Bukkit.getLogger().info(maxLength + "");
             }
 
-            if (args.length - 1 < minLength || args.length - 1 > maxLength) {
+            if (args.length != 0 && (args.length - 1 < minLength || args.length - 1 > maxLength)) {
                 sender.sendMessage(CoreMessage.getMessage("WRONG_COMMAND_USAGE", HlcyFrame.isOtherFont()));
 
                 return false;
@@ -156,7 +160,7 @@ public class HlcyCommand extends Command {
             return true;
         } catch (Exception ex) {
             ex.printStackTrace();
-            sender.sendMessage(CoreMessage.getMessage("ERROR", HlcyFrame.isOtherFont()));
+            new MessageBuilder().setHlcy().addMultiFunctionalMessage(CoreMessage.getMessageString("ERROR", HlcyFrame.isOtherFont()),null, "§c" + ex.getMessage(),null, HlcyFrame.isOtherFont()).send(sender);
         }
         return false;
     }

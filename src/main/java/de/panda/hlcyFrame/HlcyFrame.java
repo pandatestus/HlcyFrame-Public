@@ -20,7 +20,7 @@ public final class HlcyFrame extends JavaPlugin {
 
     @Getter
     @Setter
-    private static boolean isOtherFont;
+    private static boolean isOtherFont = true;
     @Getter
     private static Map<Type, ArgumentParser<?>> parserMap = new HashMap<>();
     @Getter
@@ -30,8 +30,12 @@ public final class HlcyFrame extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        CommandInitializer.executeAnnotatedMethod(TestCMD.class);
-        CommandInitializer.executeAnnotatedMethod(Help.class);
+        try {
+            new CommandInitializer().init("de.panda");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 
         registerParser(Boolean.class, new BooleanParser());
         registerParser(Integer.class, new IntegerParser());
