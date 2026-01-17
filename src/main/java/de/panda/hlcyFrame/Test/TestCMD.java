@@ -26,6 +26,7 @@ public class TestCMD {
                         return;
                     }
 
+
                     double heal = 20;
                     if (e.args().length == 2 && e.doubles()[1] == null) {
                         e.player().sendMessage("invalid number: " + e.args()[1]);
