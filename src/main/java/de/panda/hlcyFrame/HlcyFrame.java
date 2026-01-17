@@ -34,6 +34,8 @@ public final class HlcyFrame extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        new Help().init();
+
         registerParser(Boolean.class, new BooleanParser());
         registerParser(Integer.class, new IntegerParser());
         registerParser(Double.class, new DoubleParser());
