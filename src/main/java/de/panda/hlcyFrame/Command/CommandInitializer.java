@@ -15,6 +15,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
 public class CommandInitializer {
 
     private final ClassLoader classLoader;
@@ -27,6 +28,7 @@ public class CommandInitializer {
 
     public void init(String packageName) {
         try {
+            Bukkit.getLogger().info("testing package : " + packageName);
             plugin.getLogger().info("Scanning package for @HlcyCMD: " + packageName);
             List<Class<?>> classes = getClassesFromJar(packageName);
             plugin.getLogger().info("Found " + classes.size() + " candidate class(es) in package '" + packageName + "'");
