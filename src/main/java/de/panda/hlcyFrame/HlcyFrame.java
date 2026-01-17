@@ -28,15 +28,12 @@ public final class HlcyFrame extends JavaPlugin {
     @Getter
     private static List<HlcyCommand> commands = new ArrayList<>();
 
+    @Setter
+    @Getter
+    private static JavaPlugin plugin;
+
     @Override
     public void onEnable() {
-        try {
-            new CommandInitializer().init("de.panda");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-
         registerParser(Boolean.class, new BooleanParser());
         registerParser(Integer.class, new IntegerParser());
         registerParser(Double.class, new DoubleParser());

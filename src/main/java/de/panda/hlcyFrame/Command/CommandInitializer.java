@@ -31,9 +31,13 @@ public class CommandInitializer {
         }
     }
 
-    public void init(String packageName) throws Exception {
-        for(Class<?> classes : getClassesFromJar(packageName)) {
-            executeAnnotatedMethod(classes);
+    public void init(String packageName) {
+        try {
+            for (Class<?> classes : getClassesFromJar(packageName)) {
+                executeAnnotatedMethod(classes);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
