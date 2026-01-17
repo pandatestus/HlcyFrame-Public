@@ -4,6 +4,7 @@ import de.panda.hlcyFrame.Command.HlcyCMD;
 import de.panda.hlcyFrame.Command.HlcyCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,7 +17,6 @@ public class TestCMD {
                 .addAlias("hallo")
                 .description("§7heals a player by a specific amount")
                 .usage("/heal <[player]> <[amount]>")
-                .allowedSender(HlcyCommand.Allowed_Sender.PLAYER)
                 .onExecute(e -> {
                     if(!e.checkForArgs()) return;
                     e.player().sendMessage(e.getText(2));
@@ -60,6 +60,7 @@ public class TestCMD {
 
                     return result.stream().toList();
                 })
+                .addDisallowedPermission(new Permission("panda"))
                 .build();
     }
 }

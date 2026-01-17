@@ -18,31 +18,19 @@ public class Argument {
     private Argument child;
     private int depth;
     private int minDepth;
-    private ArgumentParser<?> parser = new StringParser();
-
-    public Argument(String arg, ArgumentParser<?> parser) {
-        this.parser = parser;
-        this.arg = arg;
-    }
 
     public Argument(String arg) {
         this.arg = arg;
     }
 
-    public Argument setParent(Argument parent) {
+    protected Argument setParent(Argument parent) {
         this.parent = parent;
         return this;
     }
 
-    public Argument setChild(Argument child) {
+    protected Argument setChild(Argument child) {
         this.child = child;
         return this;
-    }
-
-    public Argument newArgument(String arg, ArgumentParser<?> parser) {
-        Argument argument = new Argument(arg, parser).setParent(this).setDepth(this.depth + 1).setCommand(this.command);
-        this.child = argument;
-        return argument;
     }
 
     public Argument setDepth(int depth) {
@@ -67,45 +55,39 @@ public class Argument {
         return argument;
     }
 
-    public Argument getArgumentAtDepth(int depth) {
+    protected Argument getArgumentAtDepth(int depth) {
         Argument result = this;
         if(depth < 1 || this.child == null) return result;
         return getArgumentAtDepth(depth - 1);
     }
 
-    public Argument getPeak() {
+    protected Argument getPeak() {
         Argument result = this;
         if(this.parent == null) return result;
         return getPeak();
     }
 
-    public int getMaxDepth() {
+    protected int getMaxDepth() {
         int result = depth;
         if(!hasChild()) return result;
         return child.getMaxDepth();
     }
 
-    public int getMinDepth(int depth) {
+    protected int getMinDepth(int depth) {
         if(!hasChild()) return Math.min(depth, this.minDepth);
         return this.child.getMinDepth(Math.min(depth, this.minDepth)) + 1;
     }
 
-    public boolean hasChild() {
+    protected boolean hasChild() {
         return this.child != null;
     }
 
-    public boolean isPeak() {
+    protected boolean isPeak() {
         return this.parent == null;
     }
 
-    public <T> T parse(String input) {
-        return (T) parser.parse(input);
-    }
-
-
-    public Argument setCommand(HlcyCommand cmd) {
+    protected Argument setCommand(HlcyCommand cmd) {
         this.command = cmd;
-        cmd.addParser(depth, parser);
         return this;
     }
 
@@ -113,7 +95,7 @@ public class Argument {
         return command;
     }
 
-    public boolean isUsed(String[] input) {
+    protected boolean isUsed(String[] input) {
         return input.length >= depth;
     }
 

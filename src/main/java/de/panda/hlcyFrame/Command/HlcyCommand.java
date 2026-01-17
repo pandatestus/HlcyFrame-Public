@@ -33,7 +33,6 @@ public class HlcyCommand extends Command {
     private List<Permission> disallowed = new ArrayList<>();
     private Consumer<Executor> onExecute;
     private List<Argument> subCommands = new ArrayList<>();
-    private Map<Integer, List<ArgumentParser<?>>> parserMap = new HashMap<>();
     private BiFunction<Player, String[], List<String>> tabCompleteFunction;
 
     public HlcyCommand(@NotNull String name) {
@@ -58,17 +57,6 @@ public class HlcyCommand extends Command {
 
         HlcyFrame.addCommand(this);
         return this;
-    }
-
-    public HlcyCommand addParser(int arg, ArgumentParser<?> parser) {
-        parserMap.computeIfAbsent(arg, k -> new ArrayList<>()).add(parser);
-        return this;
-    }
-
-    public Argument newArgument(String arg, ArgumentParser<?> parser) {
-        Argument argument = new Argument(arg, parser).setCommand(this);
-        subCommands.add(argument);
-        return argument;
     }
 
     public Argument newArgument(String arg) {
@@ -185,11 +173,5 @@ public class HlcyCommand extends Command {
                 .filter(s -> s.startsWith(current))
                 .sorted()
                 .toList();
-    }
-
-    public enum Allowed_Sender {
-        CONSOLE,
-        PLAYER,
-        ALL
     }
 }
