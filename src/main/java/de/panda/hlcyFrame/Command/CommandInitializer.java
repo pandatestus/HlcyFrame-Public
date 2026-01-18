@@ -2,6 +2,7 @@ package de.panda.hlcyFrame.Command;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -38,13 +39,14 @@ public class CommandInitializer {
 
     public void executeAnnotatedMethod(Class<?> clazz) {
         try {
-            if (clazz.isInterface() || java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) {
-                return;
-            }
+            if(JavaPlugin.class.isAssignableFrom(clazz)) return;
+
+            if (clazz.isInterface() || java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) return;
+
 
             Constructor<?>[] constructors = clazz.getDeclaredConstructors();
             if (constructors.length == 0) {
-                throw new RuntimeException("No constructor found in " + clazz.getName());
+                return;
             }
             Constructor<?> ctor = null;
             for (Constructor<?> c : constructors) {
@@ -56,7 +58,8 @@ public class CommandInitializer {
 
             if(ctor == null) return;
 
-            Object instance = clazz.getDeclaredConstructor().newInstance();
+            ctor.setAccessible(true);
+            Object instance = clazz.newInstance();
 
             for (java.lang.reflect.Method method : clazz.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(HlcyCMD.class)) {
