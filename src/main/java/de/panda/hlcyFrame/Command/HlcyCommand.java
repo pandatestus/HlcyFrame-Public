@@ -130,7 +130,7 @@ public class HlcyCommand extends Command {
 
             for (Permission p : permissions) if (ex.sender().hasPermission(p)) allowed = true;
             for (Permission p : disallowed) if (ex.sender().hasPermission(p)) allowed = false;
-            if ((!allowed || player == null) || (!player.isOp() && OP_NEEDED)) {
+            if ((!allowed && (player != null && !player.isOp() && OP_NEEDED))) {
                 sender.sendMessage(CoreMessage.getMessage("MISSING_PERMISSION", HlcyFrame.isOtherFont()));
                 return false;
             }
