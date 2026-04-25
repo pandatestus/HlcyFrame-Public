@@ -15,6 +15,7 @@ public class Help {
                 .description("help for all commands")
                 .newArgument("<[commands]>")
                 .command()
+                .op(false)
                 .onTabComplete((p, args) -> {
                     LinkedList<String> result = new LinkedList<>();
                     if (args.length == 1) {

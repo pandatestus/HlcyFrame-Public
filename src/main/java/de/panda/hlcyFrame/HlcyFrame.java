@@ -1,10 +1,8 @@
 package de.panda.hlcyFrame;
 
-import de.panda.hlcyFrame.Command.CommandInitializer;
 import de.panda.hlcyFrame.Command.Help;
 import de.panda.hlcyFrame.Command.HlcyCommand;
 import de.panda.hlcyFrame.Command.Parser.*;
-import de.panda.hlcyFrame.Test.TestCMD;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;

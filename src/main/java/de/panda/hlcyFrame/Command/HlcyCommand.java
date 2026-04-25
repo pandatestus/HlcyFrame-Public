@@ -34,6 +34,7 @@ public class HlcyCommand extends Command {
     private Consumer<Executor> onExecute;
     private List<Argument> subCommands = new ArrayList<>();
     private BiFunction<Player, String[], List<String>> tabCompleteFunction;
+    private boolean OP_NEEDED = true;
 
     public HlcyCommand(@NotNull String name) {
         super(name);
@@ -100,6 +101,11 @@ public class HlcyCommand extends Command {
         return this;
     }
 
+    public HlcyCommand op(boolean op) {
+        this.OP_NEEDED = op;
+        return this;
+    }
+
     public HlcyCommand onTabComplete(BiFunction<Player, String[], List<String>> function) {
         this.tabCompleteFunction = function;
         return this;
@@ -124,7 +130,7 @@ public class HlcyCommand extends Command {
 
             for (Permission p : permissions) if (ex.sender().hasPermission(p)) allowed = true;
             for (Permission p : disallowed) if (ex.sender().hasPermission(p)) allowed = false;
-            if (!allowed && (player != null && !player.isOp())) {
+            if ((!allowed || player == null) || (!player.isOp() && OP_NEEDED)) {
                 sender.sendMessage(CoreMessage.getMessage("MISSING_PERMISSION", HlcyFrame.isOtherFont()));
                 return false;
             }
@@ -134,8 +140,7 @@ public class HlcyCommand extends Command {
             for (Argument a : subCommands) {
                 if (a.getMaxDepth() > maxLength) maxLength = a.getMaxDepth();
                 if (a.getMinDepth(minLength) < minLength) minLength = a.getMinDepth(minLength);
-
-                Bukkit.getLogger().info(maxLength + "");
+                
             }
 
             if (args.length != 0 && (args.length - 1 < minLength || args.length - 1 > maxLength)) {

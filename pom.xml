@@ -47,7 +47,7 @@
                 <version>2.3.1</version>
                 <configuration>
                     <!-- Replace 'your/path/directory' with your desired output path -->
-                    <outputDirectory>your/path/directory</outputDirectory>
+                    <outputDirectory>C:\Users\Hendrik\Desktop\Paper Plugins\Dev\plugins</outputDirectory>
                 </configuration>
             </plugin>
         </plugins>
