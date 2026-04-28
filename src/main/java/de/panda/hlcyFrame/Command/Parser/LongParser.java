@@ -12,7 +12,7 @@ public class LongParser implements ArgumentParser<Long> {
             return Long.parseLong(input);
         } catch (NumberFormatException e) {
         }
-        return 0L;
+        return null;
     }
 
     @Override

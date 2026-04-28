@@ -3,13 +3,12 @@ package de.panda.hlcyFrame.Command.Parser;
 import de.panda.hlcyFrame.Exceptions.ArgumentParseException;
 
 import java.lang.reflect.Type;
-import java.util.concurrent.CompletableFuture;
 
-public class IntegerParser implements ArgumentParser<Integer> {
+public class FloatParser implements ArgumentParser<Float>{
     @Override
-    public Integer parse(String input) throws ArgumentParseException {
+    public Float parse(String input) throws ArgumentParseException {
         try {
-            return Integer.parseInt(input);
+            return Float.parseFloat(input);
         } catch (NumberFormatException e) {
         }
         return null;
@@ -18,7 +17,7 @@ public class IntegerParser implements ArgumentParser<Integer> {
     @Override
     public boolean isValid(String input) {
         try {
-            Integer.parseInt(input);
+            Double.parseDouble(input);
             return true;
         } catch (NumberFormatException e) {
         }
@@ -27,6 +26,6 @@ public class IntegerParser implements ArgumentParser<Integer> {
 
     @Override
     public Type getType() {
-        return Integer.class;
+        return Float.class;
     }
 }

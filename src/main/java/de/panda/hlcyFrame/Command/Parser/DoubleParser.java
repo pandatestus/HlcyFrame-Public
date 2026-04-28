@@ -12,7 +12,7 @@ public class DoubleParser implements ArgumentParser<Double> {
             return Double.parseDouble(input);
         } catch (NumberFormatException e) {
         }
-        return 0.0;
+        return null;
     }
 
     @Override

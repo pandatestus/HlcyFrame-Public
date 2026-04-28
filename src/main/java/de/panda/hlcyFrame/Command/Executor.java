@@ -61,6 +61,18 @@ public class Executor {
         return true;
     }
 
+    public void wrongUsage() {
+        sender.sendMessage(CoreMessage.getMessage("WRONG_COMMAND_USAGE", HlcyFrame.isOtherFont()));
+    }
+
+    public void unknownCommand() {
+        sender.sendMessage(CoreMessage.getMessage("UNKNOWN_COMMAND", HlcyFrame.isOtherFont()));
+    }
+
+    public void missingPermission() {
+        sender.sendMessage(CoreMessage.getMessage("MISSING_PERMISSION", HlcyFrame.isOtherFont()));
+    }
+
     public Double[] doubles() {
         DoubleParser parser = new DoubleParser();
         List<Double> ints = new ArrayList<>();
