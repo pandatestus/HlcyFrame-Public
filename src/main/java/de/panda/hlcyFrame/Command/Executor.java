@@ -97,6 +97,18 @@ public class Executor {
     }
 
 
+    public Float[] floats() {
+        FloatParser parser = new FloatParser();
+        List<Float> ints = new ArrayList<>();
+        for (String arg : args) {
+            if (parser.isValid(arg)) ints.add(parser.parse(arg));
+            else ints.add(null);
+        }
+
+        return ints.toArray(Float[]::new);
+    }
+
+
     public Boolean[] booleans() {
         BooleanParser parser = new BooleanParser();
         List<Boolean> ints = new ArrayList<>();
