@@ -28,7 +28,6 @@ public class CoreMessage {
         return mb;
     }
 
-
     public static MessageBuilder messageBuilderRaw(String identifier, boolean otherFont) {
         MessageBuilder mb = new MessageBuilder();
         switch (identifier) {
