@@ -170,6 +170,10 @@ public class HlcyCommand extends Command {
         Player player = null;
         if (sender instanceof Player p) player = p;
 
+        if(deniedFunction != null && player != null && deniedFunction.apply(player)) {
+            return List.of();
+        }
+
         if (tabCompleteFunction != null && player != null) {
             result.addAll(tabCompleteFunction.apply(player, args));
         }
