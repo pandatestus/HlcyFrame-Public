@@ -1,11 +1,8 @@
 package de.panda.hlcyFrame.Command;
 
-import de.panda.hlcyFrame.Command.Parser.ArgumentParser;
-import de.panda.hlcyFrame.Command.Parser.ParsedValueList;
 import de.panda.hlcyFrame.HlcyFrame;
 import de.panda.hlcyFrame.Message.CoreMessage;
 import de.panda.hlcyFrame.Message.MessageBuilder;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,11 +14,10 @@ import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class HlcyCommand extends Command {
 
@@ -35,6 +31,7 @@ public class HlcyCommand extends Command {
     private List<Argument> subCommands = new ArrayList<>();
     private BiFunction<Player, String[], List<String>> tabCompleteFunction;
     private boolean OP_NEEDED = true;
+    private Function<Player, Boolean> deniedFunction;
 
     public HlcyCommand(@NotNull String name) {
         super(name);
@@ -106,6 +103,11 @@ public class HlcyCommand extends Command {
         return this;
     }
 
+    public HlcyCommand deniedIf(Function<Player, Boolean> deniedFunction) {
+        this.deniedFunction = deniedFunction;
+        return this;
+    }
+
     public HlcyCommand onTabComplete(BiFunction<Player, String[], List<String>> function) {
         this.tabCompleteFunction = function;
         return this;
@@ -119,6 +121,10 @@ public class HlcyCommand extends Command {
                 player = p;
                 if (allowedSender == Allowed_Sender.CONSOLE) {
                     player.sendMessage(CoreMessage.getMessage("CONSOLE_ONLY", HlcyFrame.isOtherFont()));
+                    return false;
+                }
+                if(deniedFunction != null && deniedFunction.apply(p)) {
+                    sender.sendMessage(CoreMessage.getMessage("MISSING_PERMISSION", HlcyFrame.isOtherFont()));
                     return false;
                 }
             } else if (allowedSender == Allowed_Sender.PLAYER) {
