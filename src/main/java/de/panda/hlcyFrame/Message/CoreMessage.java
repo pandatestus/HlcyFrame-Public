@@ -41,4 +41,5 @@ public class CoreMessage {
         }
         return mb;
     }
+
 }
