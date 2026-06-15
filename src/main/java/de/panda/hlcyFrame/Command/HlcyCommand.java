@@ -32,6 +32,7 @@ public class HlcyCommand extends Command {
     private BiFunction<Player, String[], List<String>> tabCompleteFunction;
     private boolean OP_NEEDED = true;
     private Function<Player, Boolean> deniedFunction;
+    private boolean isIgnoreCase = true;
 
     public HlcyCommand(@NotNull String name) {
         super(name);
@@ -105,6 +106,15 @@ public class HlcyCommand extends Command {
 
     public HlcyCommand deniedIf(Function<Player, Boolean> deniedFunction) {
         this.deniedFunction = deniedFunction;
+        return this;
+    }
+
+    public boolean isIgnoreCase() {
+        return isIgnoreCase;
+    }
+
+    public HlcyCommand ignoreCase(boolean isIgnoreCase) {
+        this.isIgnoreCase = isIgnoreCase;
         return this;
     }
 
@@ -184,6 +194,15 @@ public class HlcyCommand extends Command {
                     .sorted()
                     .toList();
         }
+
+        if (isIgnoreCase) {
+            String lower = current.toLowerCase();
+            return result.stream()
+                    .filter(s -> s.toLowerCase().startsWith(lower))
+                    .sorted()
+                    .toList();
+        }
+
         return result.stream()
                 .filter(s -> s.startsWith(current))
                 .sorted()
