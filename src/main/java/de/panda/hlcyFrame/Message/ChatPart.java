@@ -1,4 +1,4 @@
-package de.panda.hlcyFrame.Message;
+package de.panda.hlcyCorePublic.Chat;
 
 import net.kyori.adventure.text.Component;
 
@@ -11,6 +11,7 @@ public class ChatPart {
     private String cmdString;
     private String hoverString;
     private String setInChatString;
+    private String openLink;
 
     public ChatPart(Component part, boolean cmd, boolean hover, boolean setInChat) {
         this.part = part;
@@ -53,6 +54,14 @@ public class ChatPart {
 
     public String getSetInChatString() {
         return setInChatString;
+    }
+
+    public String getOpenLink() {
+        return openLink;
+    }
+
+    public void setOpenLink(String openLink) {
+        this.openLink = openLink;
     }
 
     public Component getText() {

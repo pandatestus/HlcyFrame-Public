@@ -208,4 +208,30 @@ public class HlcyCommand extends Command {
                 .sorted()
                 .toList();
     }
+
+    @Override
+    public boolean testPermissionSilent(@NotNull CommandSender target) {
+        if(target instanceof Player player) {
+            if(allowedSender == Allowed_Sender.CONSOLE) return false;
+
+            if(deniedFunction != null && deniedFunction.apply(player)) return false;
+
+            boolean allowed = permissions.isEmpty();
+            for (Permission p : permissions) if (player.hasPermission(p)) allowed = true;
+            for (Permission p : disallowed) if (player.hasPermission(p)) allowed = false;
+
+            return allowed || player.isOp() || !OP_NEEDED;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean testPermission(@NotNull CommandSender target) {
+        boolean silent = testPermissionSilent(target);
+        if(!silent) {
+            target.sendMessage(CoreMessage.getMessage("MISSING_PERMISSION", HlcyFrame.isOtherFont()));
+        }
+        return silent;
+    }
 }

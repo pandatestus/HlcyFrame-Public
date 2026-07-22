@@ -1,11 +1,11 @@
 package de.panda.hlcyFrame.Message;
 
+import de.panda.hlcyCorePublic.Chat.ChatPart;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
@@ -50,9 +50,10 @@ public class MessageBuilder {
         return this;
     }
 
+
     public MessageBuilder addCommandMessage(String msg, String cmd, boolean otherFont) {
         Component base = Component.text(otherFont
-                ? SmallFontConverter.toLowerCaseSmallFont(msg.toLowerCase())
+                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
                 : msg);
 
         ChatPart part = new ChatPart(base, true, false, false);
@@ -63,12 +64,12 @@ public class MessageBuilder {
 
     public MessageBuilder addHoverMessage(String msg, String hover, boolean otherFont) {
         Component base = Component.text(otherFont
-                ? SmallFontConverter.toLowerCaseSmallFont(msg.toLowerCase())
+                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
                 : msg);
 
         ChatPart part = new ChatPart(base, true, true, false);
         part.setHoverString(otherFont
-                ? SmallFontConverter.toLowerCaseSmallFont(hover)
+                ? SmallFontConverter.toSmallFont(hover)
                 : hover);
 
         lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(part);
@@ -77,7 +78,7 @@ public class MessageBuilder {
 
     public MessageBuilder addSetInChatMessage(String msg, String setInChatString, boolean otherFont) {
         Component base = Component.text(otherFont
-                ? SmallFontConverter.toLowerCaseSmallFont(msg.toLowerCase())
+                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
                 : msg);
 
         ChatPart part = new ChatPart(base, false, false, true);
@@ -89,7 +90,7 @@ public class MessageBuilder {
 
     public MessageBuilder addMultiFunctionalMessage(String msg, String cmd, String hover, String setInChatString, boolean otherFont) {
         Component base = Component.text(otherFont
-                ? SmallFontConverter.toLowerCaseSmallFont(msg.toLowerCase())
+                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
                 : msg);
 
         boolean isCmd = cmd != null;
@@ -99,8 +100,21 @@ public class MessageBuilder {
         ChatPart part = new ChatPart(base, isCmd, isHover, isSetInChat);
 
         if (isCmd) part.setCmd(cmd);
-        if (isHover) part.setHoverString(otherFont ? SmallFontConverter.toLowerCaseSmallFont(hover) : hover);
+        if (isHover) part.setHoverString(otherFont ? SmallFontConverter.toSmallFont(hover) : hover);
         if (isSetInChat) part.setSetInChatString(setInChatString);
+
+        lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(part);
+        return this;
+    }
+
+    public MessageBuilder addLinkMessage(String msg, String link, boolean otherFont) {
+        Component base = Component.text(otherFont
+                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
+                : msg);
+
+        ChatPart part = new ChatPart(base, false, false, false);
+
+        part.setOpenLink(link);
 
         lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(part);
         return this;
@@ -108,7 +122,7 @@ public class MessageBuilder {
 
     public MessageBuilder addMessage(String msg, boolean otherFont) {
         Component base = Component.text(otherFont
-                ? SmallFontConverter.toLowerCaseSmallFont(msg.toLowerCase())
+                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
                 : msg);
 
         lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(new ChatPart(base, false, false, false));
@@ -148,15 +162,19 @@ public class MessageBuilder {
                 Component text = part.getText();
 
                 if (part.isCmd())
-                    text = text.clickEvent(ClickEvent.runCommand(part.getCmdString()));
+                    text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand(part.getCmdString()));
 
                 if (part.isHover())
-                    text = text.hoverEvent(HoverEvent.showText(
+                    text = text.hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(
                             LegacyComponentSerializer.legacySection().deserialize(part.getHoverString())
                     ));
 
                 if (part.isSetInChat())
-                    text = text.clickEvent(ClickEvent.suggestCommand(part.getSetInChatString()));
+                    text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(part.getSetInChatString()));
+
+                if(part.getOpenLink() != null) {
+                    text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
+                }
 
                 base = base.append(text);
             }
@@ -164,6 +182,38 @@ public class MessageBuilder {
             player.sendMessage(base);
         }
         return this;
+    }
+
+    public List<String> getAsLore() {
+        List<String> result = new ArrayList<>();
+
+        for (var entry : lines.entrySet()) {
+            Component base = Component.empty();
+
+            for (ChatPart part : entry.getValue()) {
+                Component text = part.getText();
+
+                if (part.isCmd())
+                    text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand(part.getCmdString()));
+
+                if (part.isHover())
+                    text = text.hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(
+                            LegacyComponentSerializer.legacySection().deserialize(part.getHoverString())
+                    ));
+
+                if (part.isSetInChat())
+                    text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(part.getSetInChatString()));
+
+                if(part.getOpenLink() != null) {
+                    text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
+                }
+
+                base = base.append(text);
+            }
+
+            result.add(LegacyComponentSerializer.legacySection().serialize(base));
+        }
+        return result;
     }
 
     public String getAsString() {
@@ -176,15 +226,19 @@ public class MessageBuilder {
                 Component text = part.getText();
 
                 if (part.isCmd())
-                    text = text.clickEvent(ClickEvent.runCommand(part.getCmdString()));
+                    text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand(part.getCmdString()));
 
                 if (part.isHover())
-                    text = text.hoverEvent(HoverEvent.showText(
+                    text = text.hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(
                             LegacyComponentSerializer.legacySection().deserialize(part.getHoverString())
                     ));
 
                 if (part.isSetInChat())
-                    text = text.clickEvent(ClickEvent.suggestCommand(part.getSetInChatString()));
+                    text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(part.getSetInChatString()));
+
+                if(part.getOpenLink() != null) {
+                    text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
+                }
 
                 base = base.append(text);
             }
@@ -207,7 +261,7 @@ public class MessageBuilder {
                 Component text = part.getText();
 
                 if (part.isCmd())
-                    text = text.clickEvent(ClickEvent.runCommand(part.getCmdString()));
+                    text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand(part.getCmdString()));
 
                 if (part.isHover())
                     text = text.hoverEvent(HoverEvent.showText(
@@ -216,6 +270,10 @@ public class MessageBuilder {
 
                 if (part.isSetInChat())
                     text = text.clickEvent(ClickEvent.suggestCommand(part.getSetInChatString()));
+
+                if(part.getOpenLink() != null) {
+                    text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
+                }
 
                 base = base.append(text);
             }
@@ -239,47 +297,24 @@ public class MessageBuilder {
                 Component text = part.getText();
 
                 if (part.isCmd())
-                    text = text.clickEvent(ClickEvent.runCommand(part.getCmdString()));
+                    text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand(part.getCmdString()));
 
                 if (part.isHover())
-                    text = text.hoverEvent(HoverEvent.showText(
+                    text = text.hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(
                             LegacyComponentSerializer.legacySection().deserialize(part.getHoverString())
                     ));
 
                 if (part.isSetInChat())
-                    text = text.clickEvent(ClickEvent.suggestCommand(part.getSetInChatString()));
+                    text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(part.getSetInChatString()));
+
+                if(part.getOpenLink() != null) {
+                    text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
+                }
 
                 base = base.append(text);
             }
 
             player.sendActionBar(base);
-        }
-        return this;
-    }
-
-    public MessageBuilder send(CommandSender sender) {
-        for (var entry : lines.entrySet()) {
-
-            Component base = Component.empty();
-
-            for (ChatPart part : entry.getValue()) {
-                Component text = part.getText();
-
-                if (part.isCmd())
-                    text = text.clickEvent(ClickEvent.runCommand(part.getCmdString()));
-
-                if (part.isHover())
-                    text = text.hoverEvent(HoverEvent.showText(
-                            LegacyComponentSerializer.legacySection().deserialize(part.getHoverString())
-                    ));
-
-                if (part.isSetInChat())
-                    text = text.clickEvent(ClickEvent.suggestCommand(part.getSetInChatString()));
-
-                base = base.append(text);
-            }
-
-            sender.sendMessage(base);
         }
         return this;
     }
