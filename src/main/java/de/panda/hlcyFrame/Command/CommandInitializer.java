@@ -29,11 +29,23 @@ public class CommandInitializer {
             List<Class<?>> classes = getClassesFromJar(packageName);
 
             for (Class<?> clazz : classes) {
-                executeAnnotatedMethod(clazz);
+                try {
+                    if(!hasCommandAnnotation(clazz)) continue;
+                    executeAnnotatedMethod(clazz);
+                } catch (Exception e) {
+                    plugin.getLogger().severe(
+                            "error while initializing "
+                                    + clazz.getName()
+                    );
+                    e.printStackTrace();
+                }
             }
-        } catch (Throwable t) {
-            t.printStackTrace();
-            Bukkit.getPluginManager().disablePlugin(plugin);
+        } catch (Exception e) {
+            plugin.getLogger().severe(
+                    "error while initializing "
+                            + packageName
+            );
+            e.printStackTrace();
         }
     }
 
@@ -59,7 +71,7 @@ public class CommandInitializer {
             if(ctor == null) return;
 
             ctor.setAccessible(true);
-            Object instance = clazz.newInstance();
+            Object instance = ctor.newInstance();
 
             for (java.lang.reflect.Method method : clazz.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(HlcyCMD.class)) {
@@ -142,5 +154,14 @@ public class CommandInitializer {
                 }
             }
         }
+    }
+
+    private boolean hasCommandAnnotation(Class<?> clazz) {
+        for (java.lang.reflect.Method method : clazz.getDeclaredMethods()) {
+            if (method.isAnnotationPresent(HlcyCMD.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

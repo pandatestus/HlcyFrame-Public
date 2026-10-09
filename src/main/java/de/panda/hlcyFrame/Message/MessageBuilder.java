@@ -10,10 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class MessageBuilder {
 
@@ -321,6 +319,11 @@ public class MessageBuilder {
     }
 
     public MessageBuilder sendActionBar(List<Player> players) {
+        players.forEach(this::sendActionBar);
+        return this;
+    }
+
+    public MessageBuilder sendActionBar(Collection<? extends Player> players) {
         players.forEach(this::sendActionBar);
         return this;
     }

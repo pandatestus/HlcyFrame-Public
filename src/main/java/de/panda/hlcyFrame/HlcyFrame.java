@@ -5,6 +5,7 @@ import de.panda.hlcyFrame.Command.HlcyCommand;
 import de.panda.hlcyFrame.Command.Parser.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -43,7 +44,7 @@ public final class HlcyFrame extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
+        Bukkit.getScheduler().cancelTasks(this);
     }
 
     public static void registerParser(Type type, ArgumentParser<?> parser) {
