@@ -6,6 +6,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -282,7 +283,7 @@ public class MessageBuilder {
         return result;
     }
 
-    public MessageBuilder send(List<Player> players) {
+    public MessageBuilder send(Collection<? extends Player> players) {
         players.forEach(this::send);
         return this;
     }
@@ -315,11 +316,6 @@ public class MessageBuilder {
 
             player.sendActionBar(base);
         }
-        return this;
-    }
-
-    public MessageBuilder sendActionBar(List<Player> players) {
-        players.forEach(this::sendActionBar);
         return this;
     }
 
