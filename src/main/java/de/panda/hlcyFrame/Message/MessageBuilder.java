@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -384,5 +385,11 @@ public class MessageBuilder {
             sender.sendMessage(base);
         }
         return this;
+    }
+
+    public static Component createHexColorMessage(String hex, String message, boolean otherFont, boolean bold) {
+        Color color = Color.decode(hex);
+        if(!bold) return Component.text((otherFont ? SmallFontConverter.toLowerCaseSmallFont(message) : message), TextColor.color(color.getRed(), color.getGreen(), color.getBlue()));
+        return Component.text((otherFont ? SmallFontConverter.toLowerCaseSmallFont(message) : message), TextColor.color(color.getRed(), color.getGreen(), color.getBlue()), TextDecoration.BOLD);
     }
 }
