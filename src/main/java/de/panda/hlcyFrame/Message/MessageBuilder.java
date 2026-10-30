@@ -42,8 +42,13 @@ public class MessageBuilder {
         return result;
     }
 
+    public static final String TITLE_FROM = "#5ec8ff";
+    public static final String TITLE_TO   = "#9b7bff";
+    public static final Color TITLE_FROM_COLOR = Color.decode(TITLE_FROM);
+    public static final Color TITLE_TO_COLOR   = Color.decode(TITLE_TO);
+
     public MessageBuilder setHlcy() {
-        Component gradient = createGradientMessage("Halcyon ", Color.CYAN, Color.MAGENTA)
+        Component gradient = createGradientMessage("Halcyon ", TITLE_FROM_COLOR, TITLE_TO_COLOR)
                 .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD);
 
         ChatPart part = new ChatPart(gradient, false, false, false);
