@@ -142,7 +142,7 @@ public class MessageBuilder {
                 msg,
                 otherFont,
                 bold
-        );
+        ).decoration(TextDecoration.ITALIC, false);
 
         lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(new ChatPart(base, false, false, false));
         return this;
@@ -153,7 +153,7 @@ public class MessageBuilder {
                 otherFont ? SmallFontConverter.toLowerCaseSmallFont(msg) : msg,
                 Color.decode(fromHex),
                 Color.decode(toHex)
-        );
+        ).decoration(TextDecoration.ITALIC, false);
 
         if(bold) base = base.style(Style.style(TextDecoration.BOLD));
 
