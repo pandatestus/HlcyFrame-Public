@@ -1,6 +1,8 @@
 package de.panda.hlcyFrame.Command;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -40,6 +42,8 @@ public class CommandInitializer {
                     e.printStackTrace();
                 }
             }
+
+            Bukkit.getOnlinePlayers().forEach(Player::updateCommands);
         } catch (Exception e) {
             plugin.getLogger().severe(
                     "error while initializing "

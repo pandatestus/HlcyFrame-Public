@@ -6,13 +6,11 @@ import de.panda.hlcyFrame.Message.MessageBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -33,26 +31,34 @@ public class HlcyCommand extends Command {
     private boolean OP_NEEDED = true;
     private Function<Player, Boolean> deniedFunction;
     private boolean isIgnoreCase = true;
+    private boolean overwrite = true;
 
     public HlcyCommand(@NotNull String name) {
         super(name);
     }
 
     public HlcyCommand build() {
-        try {
-            Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            commandMapField.setAccessible(true);
-            SimpleCommandMap commandMap = (SimpleCommandMap) commandMapField.get(Bukkit.getServer());
+        this.setAliases(aliases);
+        this.setLabel(getName());
+        this.setUsage(usage);
+        this.setDescription(description);
 
-            this.setAliases(aliases);
-            this.setLabel(getName());
-            this.setUsage(usage);
-            this.setDescription(description);
-            commandMap.register(getName(), this);
-        } catch (Exception e) {
-            e.printStackTrace();
+        List<String> labels = new ArrayList<>(aliases);
+        labels.add(getName());
+
+        Bukkit.getCommandMap().register(getName(), this);
+
+        var known = Bukkit.getCommandMap().getKnownCommands();
+
+        if(overwrite) {
+            for(String label : labels) {
+                Command current = known.get(label);
+                if(current == this) continue;
+
+                known.remove(label);
+                known.put(label, this);
+            }
         }
-
 
         HlcyFrame.addCommand(this);
         return this;
@@ -118,6 +124,15 @@ public class HlcyCommand extends Command {
         return this;
     }
 
+    public HlcyCommand overwrite(boolean overwrite) {
+        this.overwrite = overwrite;
+        return this;
+    }
+
+    public boolean shouldOverwrite() {
+        return this.overwrite;
+    }
+
     public HlcyCommand onTabComplete(BiFunction<Player, String[], List<String>> function) {
         this.tabCompleteFunction = function;
         return this;
@@ -133,7 +148,7 @@ public class HlcyCommand extends Command {
                     player.sendMessage(CoreMessage.getMessage("CONSOLE_ONLY", HlcyFrame.isOtherFont()));
                     return false;
                 }
-                if(deniedFunction != null && deniedFunction.apply(p)) {
+                if (deniedFunction != null && deniedFunction.apply(p)) {
                     sender.sendMessage(CoreMessage.getMessage("MISSING_PERMISSION", HlcyFrame.isOtherFont()));
                     return false;
                 }
@@ -156,7 +171,7 @@ public class HlcyCommand extends Command {
             for (Argument a : subCommands) {
                 if (a.getMaxDepth() > maxLength) maxLength = a.getMaxDepth();
                 if (a.getMinDepth(minLength) < minLength) minLength = a.getMinDepth(minLength);
-                
+
             }
 
             if (args.length != 0 && (args.length - 1 < minLength || args.length - 1 > maxLength)) {
@@ -169,7 +184,7 @@ public class HlcyCommand extends Command {
             return true;
         } catch (Exception ex) {
             ex.printStackTrace();
-            new MessageBuilder().setHlcy().addMultiFunctionalMessage(CoreMessage.getMessageString("ERROR", HlcyFrame.isOtherFont()),null, "§c" + ex.getMessage(),null, HlcyFrame.isOtherFont()).send(sender);
+            new MessageBuilder().setHlcy().addMultiFunctionalMessage(CoreMessage.getMessageString("ERROR", HlcyFrame.isOtherFont()), null, "§c" + ex.getMessage(), null, HlcyFrame.isOtherFont()).send(sender);
         }
         return false;
     }
@@ -180,7 +195,7 @@ public class HlcyCommand extends Command {
         Player player = null;
         if (sender instanceof Player p) player = p;
 
-        if(deniedFunction != null && player != null && deniedFunction.apply(player)) {
+        if (deniedFunction != null && player != null && deniedFunction.apply(player)) {
             return List.of();
         }
 
@@ -211,10 +226,10 @@ public class HlcyCommand extends Command {
 
     @Override
     public boolean testPermissionSilent(@NotNull CommandSender target) {
-        if(target instanceof Player player) {
-            if(allowedSender == Allowed_Sender.CONSOLE) return false;
+        if (target instanceof Player player) {
+            if (allowedSender == Allowed_Sender.CONSOLE) return false;
 
-            if(deniedFunction != null && deniedFunction.apply(player)) return false;
+            if (deniedFunction != null && deniedFunction.apply(player)) return false;
 
             boolean allowed = permissions.isEmpty();
             for (Permission p : permissions) if (player.hasPermission(p)) allowed = true;
@@ -229,7 +244,7 @@ public class HlcyCommand extends Command {
     @Override
     public boolean testPermission(@NotNull CommandSender target) {
         boolean silent = testPermissionSilent(target);
-        if(!silent) {
+        if (!silent) {
             target.sendMessage(CoreMessage.getMessage("MISSING_PERMISSION", HlcyFrame.isOtherFont()));
         }
         return silent;
