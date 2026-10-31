@@ -4,6 +4,7 @@ import de.panda.hlcyCorePublic.Chat.ChatPart;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -130,6 +131,31 @@ public class MessageBuilder {
         Component base = Component.text(otherFont
                 ? SmallFontConverter.toSmallFont(msg.toLowerCase())
                 : msg);
+
+        lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(new ChatPart(base, false, false, false));
+        return this;
+    }
+
+    public MessageBuilder addMessage(String hex, String msg, boolean otherFont, boolean bold) {
+        Component base = MessageBuilder.createHexColorMessage(
+                hex,
+                msg,
+                otherFont,
+                bold
+        );
+
+        lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(new ChatPart(base, false, false, false));
+        return this;
+    }
+
+    public MessageBuilder addMessage(String fromHex, String toHex, String msg, boolean otherFont, boolean bold) {
+        Component base = MessageBuilder.createGradientMessage(
+                otherFont ? SmallFontConverter.toLowerCaseSmallFont(msg) : msg,
+                Color.decode(fromHex),
+                Color.decode(toHex)
+        );
+
+        if(bold) base = base.style(Style.style(TextDecoration.BOLD));
 
         lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(new ChatPart(base, false, false, false));
         return this;
