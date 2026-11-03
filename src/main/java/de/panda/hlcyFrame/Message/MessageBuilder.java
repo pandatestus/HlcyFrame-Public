@@ -2,6 +2,7 @@ package de.panda.hlcyFrame.Message;
 
 import de.panda.hlcyCorePublic.Chat.ChatPart;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.Style;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 public class MessageBuilder {
 
@@ -128,13 +130,32 @@ public class MessageBuilder {
     }
 
     public MessageBuilder addMessage(String msg, boolean otherFont) {
-        Component base = Component.text(otherFont
-                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
-                : msg);
+        Component base = LEGACY.deserialize(msg)
+                .decoration(TextDecoration.ITALIC, false);
 
-        lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(new ChatPart(base, false, false, false));
+        if (otherFont) {
+            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
+        }
+
+        lines.computeIfAbsent(currentLine, k -> new ArrayList<>())
+                .add(new ChatPart(base, false, false, false));
         return this;
     }
+
+    private static Component mapText(Component component, UnaryOperator<String> fn) {
+        if (component instanceof TextComponent text) {
+            component = text.content(fn.apply(text.content()));
+        }
+        List<Component> children = component.children().stream()
+                .map(child -> mapText(child, fn))
+                .toList();
+        return component.children(children);
+    }
+
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.builder()
+            .character(LegacyComponentSerializer.SECTION_CHAR)
+            .hexColors()
+            .build();
 
     public MessageBuilder addMessage(String hex, String msg, boolean otherFont, boolean bold) {
         Component base = MessageBuilder.createHexColorMessage(
