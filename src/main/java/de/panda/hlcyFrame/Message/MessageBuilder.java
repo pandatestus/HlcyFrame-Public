@@ -9,7 +9,6 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -18,7 +17,12 @@ import java.util.*;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
+import static de.panda.hlcyFrame.Message.HalcyonColors.TITLE_FROM_COLOR;
+import static de.panda.hlcyFrame.Message.HalcyonColors.TITLE_TO_COLOR;
+
 public class MessageBuilder {
+
+    private boolean replaceStandardCodes = true;
 
     private final Map<Integer, List<ChatPart>> lines = new HashMap<>();
     private int currentLine = 0;
@@ -45,11 +49,6 @@ public class MessageBuilder {
         return result;
     }
 
-    public static final String TITLE_FROM = "#5ec8ff";
-    public static final String TITLE_TO   = "#9b7bff";
-    public static final Color TITLE_FROM_COLOR = Color.decode(TITLE_FROM);
-    public static final Color TITLE_TO_COLOR   = Color.decode(TITLE_TO);
-
     public MessageBuilder setHlcy() {
         Component gradient = createGradientMessage("Halcyon ", TITLE_FROM_COLOR, TITLE_TO_COLOR)
                 .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD);
@@ -59,29 +58,38 @@ public class MessageBuilder {
         return this;
     }
 
+    public MessageBuilder useStandardCodes(boolean value) {
+        this.replaceStandardCodes = value;
+        return this;
+    }
 
-    public MessageBuilder addCommandMessage(String msg, String cmd, boolean otherFont) {
-        Component base = LEGACY.deserialize(msg)
-                .decoration(TextDecoration.ITALIC, false);
+    public Component compileBase(String msg, boolean otherFont) {
+        if (replaceStandardCodes) {
+            msg = msg
+                    .replace("§6", "§" + HalcyonColors.NEUTRAL)
+                    .replace("§c", "§" + HalcyonColors.OFF)
+                    .replace("§a", "§" + HalcyonColors.ON)
+                    .replace("§7", "§" + HalcyonColors.SEPARATOR)
+                    .replace("§b", "§" + HalcyonColors.LABEL);
+        }
+        Component base = LEGACY.deserialize(msg).decoration(TextDecoration.ITALIC, false);
 
         if (otherFont) {
             base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
         }
-        ChatPart part = new ChatPart(base, true, false, false);
+
+        return base;
+    }
+
+    public MessageBuilder addCommandMessage(String msg, String cmd, boolean otherFont) {
+        ChatPart part = new ChatPart(compileBase(msg, otherFont), true, false, false);
         part.setCmd(cmd);
         lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(part);
         return this;
     }
 
     public MessageBuilder addHoverMessage(String msg, String hover, boolean otherFont) {
-        Component base = LEGACY.deserialize(msg)
-                .decoration(TextDecoration.ITALIC, false);
-
-        if (otherFont) {
-            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
-        }
-
-        ChatPart part = new ChatPart(base, true, true, false);
+        ChatPart part = new ChatPart(compileBase(msg, otherFont), true, true, false);
         part.setHoverString(otherFont
                 ? SmallFontConverter.toSmallFont(hover)
                 : hover);
@@ -91,14 +99,7 @@ public class MessageBuilder {
     }
 
     public MessageBuilder addSetInChatMessage(String msg, String setInChatString, boolean otherFont) {
-        Component base = LEGACY.deserialize(msg)
-                .decoration(TextDecoration.ITALIC, false);
-
-        if (otherFont) {
-            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
-        }
-
-        ChatPart part = new ChatPart(base, false, false, true);
+        ChatPart part = new ChatPart(compileBase(msg, otherFont), false, false, true);
         part.setSetInChatString(setInChatString);
 
         lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(part);
@@ -106,18 +107,11 @@ public class MessageBuilder {
     }
 
     public MessageBuilder addMultiFunctionalMessage(String msg, String cmd, String hover, String setInChatString, boolean otherFont) {
-        Component base = LEGACY.deserialize(msg)
-                .decoration(TextDecoration.ITALIC, false);
-
-        if (otherFont) {
-            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
-        }
-
         boolean isCmd = cmd != null;
         boolean isHover = hover != null;
         boolean isSetInChat = setInChatString != null;
 
-        ChatPart part = new ChatPart(base, isCmd, isHover, isSetInChat);
+        ChatPart part = new ChatPart(compileBase(msg, otherFont), isCmd, isHover, isSetInChat);
 
         if (isCmd) part.setCmd(cmd);
         if (isHover) part.setHoverString(otherFont ? SmallFontConverter.toSmallFont(hover) : hover);
@@ -128,14 +122,7 @@ public class MessageBuilder {
     }
 
     public MessageBuilder addLinkMessage(String msg, String link, boolean otherFont) {
-        Component base = LEGACY.deserialize(msg)
-                .decoration(TextDecoration.ITALIC, false);
-
-        if (otherFont) {
-            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
-        }
-
-        ChatPart part = new ChatPart(base, false, false, false);
+        ChatPart part = new ChatPart(compileBase(msg, otherFont), false, false, false);
 
         part.setOpenLink(link);
 
@@ -144,15 +131,8 @@ public class MessageBuilder {
     }
 
     public MessageBuilder addMessage(String msg, boolean otherFont) {
-        Component base = LEGACY.deserialize(msg)
-                .decoration(TextDecoration.ITALIC, false);
-
-        if (otherFont) {
-            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
-        }
-
         lines.computeIfAbsent(currentLine, k -> new ArrayList<>())
-                .add(new ChatPart(base, false, false, false));
+                .add(new ChatPart(compileBase(msg, otherFont), false, false, false));
         return this;
     }
 
@@ -190,7 +170,7 @@ public class MessageBuilder {
                 Color.decode(toHex)
         ).decoration(TextDecoration.ITALIC, false);
 
-        if(bold) base = base.style(Style.style(TextDecoration.BOLD));
+        if (bold) base = base.style(Style.style(TextDecoration.BOLD));
 
         lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(new ChatPart(base, false, false, false));
         return this;
@@ -239,7 +219,7 @@ public class MessageBuilder {
                 if (part.isSetInChat())
                     text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(part.getSetInChatString()));
 
-                if(part.getOpenLink() != null) {
+                if (part.getOpenLink() != null) {
                     text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
                 }
 
@@ -271,7 +251,7 @@ public class MessageBuilder {
                 if (part.isSetInChat())
                     text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(part.getSetInChatString()));
 
-                if(part.getOpenLink() != null) {
+                if (part.getOpenLink() != null) {
                     text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
                 }
 
@@ -303,7 +283,7 @@ public class MessageBuilder {
                 if (part.isSetInChat())
                     text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(part.getSetInChatString()));
 
-                if(part.getOpenLink() != null) {
+                if (part.getOpenLink() != null) {
                     text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
                 }
 
@@ -338,7 +318,7 @@ public class MessageBuilder {
                 if (part.isSetInChat())
                     text = text.clickEvent(ClickEvent.suggestCommand(part.getSetInChatString()));
 
-                if(part.getOpenLink() != null) {
+                if (part.getOpenLink() != null) {
                     text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
                 }
 
@@ -374,7 +354,7 @@ public class MessageBuilder {
                 if (part.isSetInChat())
                     text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(part.getSetInChatString()));
 
-                if(part.getOpenLink() != null) {
+                if (part.getOpenLink() != null) {
                     text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
                 }
 
@@ -410,7 +390,7 @@ public class MessageBuilder {
                 if (part.isSetInChat())
                     text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(part.getSetInChatString()));
 
-                if(part.getOpenLink() != null) {
+                if (part.getOpenLink() != null) {
                     text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
                 }
 
@@ -441,7 +421,7 @@ public class MessageBuilder {
                 if (part.isSetInChat())
                     text = text.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand(part.getSetInChatString()));
 
-                if(part.getOpenLink() != null) {
+                if (part.getOpenLink() != null) {
                     text = text.clickEvent(ClickEvent.openUrl(part.getOpenLink()));
                 }
 
@@ -455,7 +435,8 @@ public class MessageBuilder {
 
     public static Component createHexColorMessage(String hex, String message, boolean otherFont, boolean bold) {
         Color color = Color.decode(hex);
-        if(!bold) return Component.text((otherFont ? SmallFontConverter.toLowerCaseSmallFont(message) : message), TextColor.color(color.getRed(), color.getGreen(), color.getBlue()));
+        if (!bold)
+            return Component.text((otherFont ? SmallFontConverter.toLowerCaseSmallFont(message) : message), TextColor.color(color.getRed(), color.getGreen(), color.getBlue()));
         return Component.text((otherFont ? SmallFontConverter.toLowerCaseSmallFont(message) : message), TextColor.color(color.getRed(), color.getGreen(), color.getBlue()), TextDecoration.BOLD);
     }
 }
