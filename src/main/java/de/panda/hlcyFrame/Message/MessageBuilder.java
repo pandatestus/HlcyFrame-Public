@@ -61,10 +61,12 @@ public class MessageBuilder {
 
 
     public MessageBuilder addCommandMessage(String msg, String cmd, boolean otherFont) {
-        Component base = Component.text(otherFont
-                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
-                : msg);
+        Component base = LEGACY.deserialize(msg)
+                .decoration(TextDecoration.ITALIC, false);
 
+        if (otherFont) {
+            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
+        }
         ChatPart part = new ChatPart(base, true, false, false);
         part.setCmd(cmd);
         lines.computeIfAbsent(currentLine, k -> new ArrayList<>()).add(part);
@@ -72,9 +74,12 @@ public class MessageBuilder {
     }
 
     public MessageBuilder addHoverMessage(String msg, String hover, boolean otherFont) {
-        Component base = Component.text(otherFont
-                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
-                : msg);
+        Component base = LEGACY.deserialize(msg)
+                .decoration(TextDecoration.ITALIC, false);
+
+        if (otherFont) {
+            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
+        }
 
         ChatPart part = new ChatPart(base, true, true, false);
         part.setHoverString(otherFont
@@ -86,9 +91,12 @@ public class MessageBuilder {
     }
 
     public MessageBuilder addSetInChatMessage(String msg, String setInChatString, boolean otherFont) {
-        Component base = Component.text(otherFont
-                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
-                : msg);
+        Component base = LEGACY.deserialize(msg)
+                .decoration(TextDecoration.ITALIC, false);
+
+        if (otherFont) {
+            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
+        }
 
         ChatPart part = new ChatPart(base, false, false, true);
         part.setSetInChatString(setInChatString);
@@ -98,9 +106,12 @@ public class MessageBuilder {
     }
 
     public MessageBuilder addMultiFunctionalMessage(String msg, String cmd, String hover, String setInChatString, boolean otherFont) {
-        Component base = Component.text(otherFont
-                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
-                : msg);
+        Component base = LEGACY.deserialize(msg)
+                .decoration(TextDecoration.ITALIC, false);
+
+        if (otherFont) {
+            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
+        }
 
         boolean isCmd = cmd != null;
         boolean isHover = hover != null;
@@ -117,9 +128,12 @@ public class MessageBuilder {
     }
 
     public MessageBuilder addLinkMessage(String msg, String link, boolean otherFont) {
-        Component base = Component.text(otherFont
-                ? SmallFontConverter.toSmallFont(msg.toLowerCase())
-                : msg);
+        Component base = LEGACY.deserialize(msg)
+                .decoration(TextDecoration.ITALIC, false);
+
+        if (otherFont) {
+            base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
+        }
 
         ChatPart part = new ChatPart(base, false, false, false);
 
