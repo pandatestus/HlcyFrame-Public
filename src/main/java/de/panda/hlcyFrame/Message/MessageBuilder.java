@@ -64,6 +64,7 @@ public class MessageBuilder {
     }
 
     public Component compileBase(String msg, boolean otherFont) {
+        Component base;
         if (replaceStandardCodes) {
             msg = msg
                     .replace("§6", "§" + HalcyonColors.NEUTRAL)
@@ -71,8 +72,11 @@ public class MessageBuilder {
                     .replace("§a", "§" + HalcyonColors.ON)
                     .replace("§7", "§" + HalcyonColors.SEPARATOR)
                     .replace("§b", "§" + HalcyonColors.LABEL);
+
+            base = LEGACY.deserialize(msg).decoration(TextDecoration.ITALIC, false);
+        } else {
+          base = Component.text(msg);
         }
-        Component base = LEGACY.deserialize(msg).decoration(TextDecoration.ITALIC, false);
 
         if (otherFont) {
             base = mapText(base, s -> SmallFontConverter.toSmallFont(s.toLowerCase()));
